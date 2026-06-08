@@ -1,3 +1,3 @@
-# the no-cap Slack bot
+# rocky
 
-The new and improved no-cap Slack bot!
+This bot uses NASA's APIs to share cool images of the universe
