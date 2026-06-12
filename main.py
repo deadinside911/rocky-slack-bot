@@ -25,28 +25,33 @@ def rocky_hello(ack, respond, command):
 def make_landsat_name(ack, respond, command, client):
     ack()
     
-    name = str(command['text']).upper()
-    make_landsat_image(name)
-    filepath = f"{command['text']}.png"
-    
-    response = client.files_getUploadURLExternal(
-        filename=os.path.basename(filepath),
-        length=os.path.getsize(filepath),
-    )
-    upload_url = response["upload_url"]
-    file_id = response["file_id"]
-    
-    with open(filepath, "rb") as file:
-        requests.post(upload_url, data=file.read())
-    
-    client.files_completeUploadExternal(
-        files=[{"id": file_id, "title": name}],
-        channel_id=command["channel_id"],
-    )
+    name = str(command['text'])
 
-    os.remove(filepath)
-    
-    respond(f"hello, just finishing up making {command['text']} in landsat", response_type="in_channel")
+    if not name.isalpha():
+        respond(f"hello! the string must be only characters, {name} won't work", response_type="in_channel")
+    else:
+        name = name.upper()
+        make_landsat_image(name)
+        filepath = f"{command['text'].upper()}.png"
+        
+        response = client.files_getUploadURLExternal(
+            filename=os.path.basename(filepath),
+            length=os.path.getsize(filepath),
+        )
+        upload_url = response["upload_url"]
+        file_id = response["file_id"]
+        
+        with open(filepath, "rb") as file:
+            requests.post(upload_url, data=file.read())
+        
+        client.files_completeUploadExternal(
+            files=[{"id": file_id, "title": name}],
+            channel_id=command["channel_id"],
+        )
+
+        os.remove(filepath)
+        
+        respond(f"hello! just finishing up making {command['text']} in landsat", response_type="in_channel")
 
 
 if __name__ == "__main__":
