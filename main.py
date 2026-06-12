@@ -1,19 +1,16 @@
 import os
+import requests
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
-from slack_sdk.web import WebClient
-from slack_sdk.socket_mode.websocket_client import SocketModeClient
 
 from dotenv import load_dotenv
+
+from landsat import make_landsat_image
 
 
 load_dotenv()
 
-client = SocketModeClient(
-    app_token=os.environ.get("SLACK_APP_TOKEN"), 
-    web_client=WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))  
-)
 
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
 
@@ -25,9 +22,31 @@ def rocky_hello(ack, respond, command):
 
 
 @app.command("/landsat")
-def make_landsat_name(ack, respond, command):
+def make_landsat_name(ack, respond, command, client):
     ack()
-    respond(f"{command["text"]}", response_type="in_channel")
+    
+    name = str(command['text']).upper()
+    make_landsat_image(name)
+    filepath = f"{command['text']}.png"
+    
+    response = client.files_getUploadURLExternal(
+        filename=os.path.basename(filepath),
+        length=os.path.getsize(filepath),
+    )
+    upload_url = response["upload_url"]
+    file_id = response["file_id"]
+    
+    with open(filepath, "rb") as file:
+        requests.post(upload_url, data=file.read())
+    
+    client.files_completeUploadExternal(
+        files=[{"id": file_id, "title": name}],
+        channel_id=command["channel_id"],
+    )
+
+    os.remove(filepath)
+    
+    respond(f"hello, just finishing up making {command['text']} in landsat", response_type="in_channel")
 
 
 if __name__ == "__main__":
