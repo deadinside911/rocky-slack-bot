@@ -66,11 +66,17 @@ def get_apod(ack, respond, command, client):
         response = requests.get(NASA_APOD_URL, params={
             "api_key": os.getenv("NASA_API_KEY", "DEMO_KEY"),
 
-        }).json()
+        })
 
-        image_url = response["hdurl"]
+        if response.status_code == 200:
 
-        respond(f"{image_url}", response_type="in_channel")
+            response_json = response.json()
+
+            image_url = response_json["hdurl"]
+
+            respond(f"{image_url}", response_type="in_channel")
+        else:
+            respond("A problem occured, try again in a bit", response_type="in_channel")
 
     except Exception as e:
         pass
