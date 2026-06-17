@@ -60,7 +60,8 @@ def make_landsat_name(ack, respond, command, client):
 
 @app.command("/apod")
 def get_apod(ack, respond, command, client):
-
+    ack()
+    
     try: 
         response = requests.get(NASA_APOD_URL, params={
             "api_key": os.getenv("NASA_API_KEY", "DEMO_KEY"),
