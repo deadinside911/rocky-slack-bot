@@ -1,5 +1,9 @@
-import os
+"""
+rocky's sourcecode
+"""
+import random
 import requests
+import os
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -19,7 +23,13 @@ app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
 def rocky_hello(ack, respond, command):
     ack()
 
-    respond(f"hello!", response_type="in_channel")
+    responses = ["hello!", 
+                "the universe is so big and we will never get to see a significant percentage of it",
+                "lowkey need a nap rn"]
+    
+    response = random.choice(responses)
+
+    respond(f"{response}", response_type="in_channel")
 
 
 @app.command("/landsat")
