@@ -55,7 +55,7 @@ def make_landsat_name(ack, respond, command, client):
             
             respond(f"hello! just finishing up making {command['text']} in landsat", response_type="in_channel")
     except Exception as e:
-        respond("An error occured, try again later")
+        pass
 
 
 @app.command("/apod")
@@ -70,10 +70,11 @@ def get_apod(ack, respond, command, client):
 
         image_url = response["hdurl"]
 
-        respond(f"{image_url}")
+        respond(f"{image_url}", response_type="in_channel")
 
     except Exception as e:
-        respond("An error occured, try again later")
+        pass
+
 
 if __name__ == "__main__":
     SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"]).start()
